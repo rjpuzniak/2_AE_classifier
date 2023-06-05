@@ -2,5 +2,18 @@
 *.nii.gz
 *.nii
 *.mif
+
+# compressed data
+*.zip
+
+# models
 *.pkl
 *.txt
+*.npy
+*.pt
+
+# specific files
+*optimal_weights
+
+# figures
+3_Figures
