@@ -1,0 +1,83 @@
+data_folder=../../../../../1_OVGU/0_MRI_Data
+
+output_folder=../../1_Data/1_Input
+
+mkdir -p $output_folder
+
+# 1. CHIASM
+for subject in $data_folder/1_CHIASM/proj-5ddfa986936ca339b1c5f455/sub-????; do
+	echo ${subject: -4}
+	mkdir $output_folder/CHIASM/${subject: -4} -p
+	cp $subject/*t1w.tag-AC-PC_aligned*/t1.nii.gz $output_folder/CHIASM/${subject: -4}/t1w.nii.gz
+done
+
+
+# 2. HCP
+for subject in $data_folder/4_HCP_S1200/*; do
+	echo ${subject: -6}
+	mkdir $output_folder/HCP/${subject: -6} -p
+	cp $subject/t1.nii.gz $output_folder/HCP/${subject: -6}/t1w.nii.gz
+done
+
+# 3. UoN
+for subject in $data_folder/3_UoN_albinism_data/1_T1w_original/*; do
+	sub=$(basename $subject)
+	echo ${sub:0:6}
+	mkdir $output_folder/UoN/${sub:0:6} -p
+	cp $data_folder/3_UoN_albinism_data/1_T1w_original/$sub $output_folder/UoN/${sub:0:6}/t1w.nii.gz
+done
+
+# 4. Athletes
+for subject in $data_folder/7_Athletes_data/*; do
+	sub=$(basename $subject)
+	echo ${sub: -3}
+	mkdir $output_folder/Athletes/${sub: -3} -p
+	cp $data_folder/7_Athletes_data/$sub/*preprocessed.tag-acpc_aligned*/t1.nii.gz $output_folder/Athletes/${sub: -3}/t1w.nii.gz
+done
+
+
+# 5. MCICShare
+for subject in $data_folder/8_MCICShare/*/*/*/*/*/*/*; do
+	sub=$(basename $subject)
+	echo $sub
+	mkdir $output_folder/MCIC/$sub -p
+	for scan in $data_folder/8_MCICShare/*/*/*/*/*/*/$sub/*/t1r1; do	
+		mrconvert $scan $output_folder/MCIC/$sub/t1w.nii.gz
+	done	
+done
+
+
+
+# 6. ABIDE
+for subject in $data_folder/9_ABIDE/*/*/*/*/*/*/*; do
+	sub=$(basename $subject)
+	echo $sub
+	mkdir $output_folder/ABIDE/$sub -p
+	for scan in $data_folder/9_ABIDE/*/*/*/*/*/*/$sub/*/*/MPRAGE.nii.gz; do
+		cp $scan $output_folder/ABIDE/$sub/t1w.nii.gz
+	done
+done
+
+
+
+# 7. COBRE
+for subject in $data_folder/10_COBRE/*/*/dicom/*/*/*/*; do
+	sub=$(basename $subject)
+	#echo $sub
+	mkdir $output_folder/COBRE/$sub -p
+	for scan in $data_folder/10_COBRE/*/*/dicom/*/*/*/$sub/*/mprage*; do
+		mrconvert $scan $output_folder/COBRE/$sub/t1w_${scan: -4}.nii.gz
+	done
+done
+
+# 8. Leipzig Mind Body
+for subject in $data_folder/5_Leipzig_Mind_Body/*; do
+	sub=$(basename $subject)
+	mkdir $output_folder/Leipzig/$sub -p
+	cp $data_folder/5_Leipzig_Mind_Body/$sub/*/t1.nii.gz $output_folder/Leipzig/$sub/t1w.nii.gz
+
+
+done
+
+: <<'END'
+END

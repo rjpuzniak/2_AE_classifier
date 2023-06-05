@@ -1,0 +1,128 @@
+input_folder=../../1_Data/1_Input
+
+
+
+# Remove files with stacked images, observed in COBRE dataset
+for sub in $input_folder/COBRE/*/*; do 
+	if [ -n "$(find "$sub" -prune -size +25000000c)" ]; then
+		echo $sub 'is strictly larger than 25 MB\n'; 
+		rm $sub
+	fi 
+done
+
+
+for dataset in $input_folder/*; do
+
+	echo $(basename $dataset)
+
+	for subject in $dataset/*; do
+
+		echo $(basename $subject)
+
+		# Resample to 1.0 isotropic voxel
+		mrgrid $subject/t1w.nii.gz regrid -voxel 1.0 $subject/t1w_1mm_iso.nii.gz -force
+
+		# If resampling was succesfull, remove the original image
+		if [ -f "$subject/t1w_1mm_iso.nii.gz" ]; then
+		    rm $subject/t1w.nii.gz
+		fi
+		
+		# Simulate the compression of image by factor of 2 using resampling
+		#mrgrid $subject/t1w_1mm_iso.nii.gz regrid -voxel 1.26 - -quiet | mrgrid - regrid -voxel 1.0 $subject/t1w_1mm_recompressed.nii.gz -quiet -force
+
+		# Remove the skull
+		bet2 $subject/t1w_1mm_iso.nii.gz $subject/t1w_1mm_iso_brain -f 0.15 -m
+
+		# Rename wrongly named files
+		#mv $subject/tmp_brain.nii.gz $subject/t1w_1mm_iso_brain.nii.gz
+
+
+	done
+done
+
+## COBRE
+
+
+for dataset in $input_folder/COBRE; do
+
+	echo $(basename $dataset)
+
+	for subject in $dataset/*; do
+
+		echo $(basename $subject)
+
+		# Resample to 1.0 isotropic voxel
+		mrgrid $subject/t1w_*.nii.gz regrid -voxel 1.0 $subject/t1w_1mm_iso.nii.gz # first *, then 0004, then 0003 - always the lowest index
+
+		# Remove the skull, extremely liberally
+		bet2 $subject/t1w_1mm_iso.nii.gz $subject/t1w_1mm_iso_brain -f 0.15 -m 
+
+		# Rename wrongly named files
+		#mv $subject/tmp_brain.nii.gz $subject/t1w_1mm_iso_brain.nii.gz
+
+		# If saved image exists, remove the t1w image
+		if [ -f "$subject/t1w_1mm_iso.nii.gz" ]; then
+		    rm $subject/t1w.nii.gz
+		fi
+
+	done
+done
+
+
+
+for dataset in $input_folder/COBRE; do
+
+	echo $(basename $dataset)
+
+	for subject in $dataset/*; do
+
+		echo $(basename $subject)
+
+		# Resample to 1.0 isotropic voxel
+		mrgrid $subject/t1w_0004.nii.gz regrid -voxel 1.0 $subject/t1w_1mm_iso.nii.gz # first *, then 0004, then 0003 - always the lowest index
+
+		# Remove the skull, extremely liberally
+		bet2 $subject/t1w_1mm_iso.nii.gz $subject/t1w_1mm_iso_brain -f 0.15 -m 
+
+		# Rename wrongly named files
+		#mv $subject/tmp_brain.nii.gz $subject/t1w_1mm_iso_brain.nii.gz
+
+		# If saved image exists, remove the t1w image
+		#FILE=/etc/resolv.conf
+		if [ -f "$subject/t1w_1mm_iso.nii.gz" ]; then
+		    rm $subject/t1w.nii.gz
+		fi
+
+	done
+done
+
+for dataset in $input_folder/COBRE; do
+
+	echo $(basename $dataset)
+
+	for subject in $dataset/*; do
+
+		echo $(basename $subject)
+
+		# Resample to 1.0 isotropic voxel
+		mrgrid $subject/t1w_0003.nii.gz regrid -voxel 1.0 $subject/t1w_1mm_iso.nii.gz # first *, then 0004, then 0003 - always the lowest index
+
+		# Remove the skull, extremely liberally
+		bet2 $subject/t1w_1mm_iso.nii.gz $subject/t1w_1mm_iso_brain -f 0.15 -m 
+
+		# Rename wrongly named files
+		#mv $subject/tmp_brain.nii.gz $subject/t1w_1mm_iso_brain.nii.gz
+
+		# If saved image exists, remove the t1w image
+		#FILE=/etc/resolv.conf
+		if [ -f "$subject/t1w_1mm_iso.nii.gz" ]; then
+		    rm $subject/t1w.nii.gz
+		fi
+
+	done
+done
+
+
+: <<'END'
+END
+

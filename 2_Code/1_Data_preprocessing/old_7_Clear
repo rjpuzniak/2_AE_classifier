@@ -1,0 +1,23 @@
+input_folder=/home/rjp/1_OVGU/4_DL_Tools_for_Chiasmal_Malformations/2_AE_classifier/1_Data/1_Input
+
+for dataset in $input_folder/*; do
+
+	echo $(basename $dataset)
+
+	for subject in $dataset/*; do
+
+		if [ -f "$subject/t1w_1mm_sampling.nii.gz" ]; then
+
+			echo $(basename $subject)
+
+			rm $subject/t1w_1mm_sampling.nii.gz
+
+		fi
+
+
+	done
+done
+
+: <<'END'
+END
+

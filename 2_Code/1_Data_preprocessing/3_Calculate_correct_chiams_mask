@@ -1,0 +1,150 @@
+input_folder=/home/rjp/1_OVGU/4_DL_Tools_for_Chiasmal_Malformations/2_AE_classifier/1_Data/1_Input
+
+CNN_folder=../../../../2_Chiasmal_Abnormalities_Deep_Learning_Based_Segmentation
+
+: <<'END'
+
+for dataset in $input_folder/*; do
+
+	echo $(basename $dataset)
+
+	for subject in $dataset/*; do
+
+		echo $(basename $subject)
+		
+		echo $subject/t1w_1mm_iso*
+
+		python ../Sources/CNN_chiasm_segmentation.py $subject/t1w_1mm_iso.nii.gz $subject mask_optic_chiasm -weights ../Sources/CNN_chiasm_segmentation_weights_30ep_00025lr.pt -threshold 1 -connectivity 3 
+
+	done
+done
+
+# Copy manually defined masks (available only for chosen datasets)
+
+# UoN
+for subject in ../../../../0_MRI_Data/3_UoN_albinism_data/4_OC_masks/*; do
+	filename=$(basename $subject)
+	sub=${filename:0:6}
+	cp $subject $input_folder/UoN/$sub/mask_optic_chiasm.nii.gz	
+done
+
+# CHIASM
+for subject in ../../../../0_MRI_Data/1_CHIASM/proj*/sub-????/; do	
+	filename=$(basename $subject)
+	sub=${filename:4:4}
+	echo $sub
+	cp $subject/dt-neuro-mask.tag-X-mask.tag-manual*/mask.nii.gz $input_folder/CHIASM/$sub/mask_optic_chiasm.nii.gz	
+done
+
+# HCP
+for file in ../../../../2_Chiasmal_Abnormalities_Deep_Learning_Based_Segmentation_ORIGINAL/1_Data/1_T1w_Images_and_Labels/3_Optic_Chiasm_Labels_Refined/HCP/*; do 
+	subject=$(basename $file)
+	echo $subject
+	cp $file/Xmask_atlas-refined.nii.gz $input_folder/HCP/$subject/mask_optic_chiasm.nii.gz
+done
+
+END
+
+# Count erroneous mask
+
+for dataset in $input_folder/*; do
+
+	echo $(basename $dataset)
+	i=0
+
+	for subject in $dataset/*; do
+
+		max=$(mrstats -output min $subject/mask_optic_chiasm.nii.gz -quiet)
+
+		if [ $max == 1 ]; then
+			#rm $subject/mask_optic_chiasm.nii.gz
+			#rm $subject/chiasm.nii.gz
+			#rm $subject/sampling_distribution.nii.gz
+			i=$(($i + 1))
+		fi
+
+	done
+
+	echo $i
+
+done
+
+: <<'END'
+
+# Correct masks in COBRE dataset
+
+for dataset in $input_folder/COBRE; do
+
+	echo $(basename $dataset)
+	i=0
+
+	for subject in $dataset/*; do
+
+		echo $subject
+
+		max=$(mrstats -output min $subject/mask_optic_chiasm.nii.gz -quiet)
+
+		
+
+		#rm $subject/t1w_0003.nii.gz
+		#rm $subject/t1w_0004.nii.gz
+		#rm $subject/t1w_0005.nii.gz
+		#rm $subject/t1w_0006.nii.gz
+
+		if [ $max == 1 ]; then
+
+			i=$(($i + 1))
+			echo $i
+
+			rm $subject/mask_optic_chiasm.nii.gz
+
+			#cd $subject
+
+			#mrview $subject/t1w_1mm_iso_brain.nii.gz
+
+			#mrconvert $subject/mask_optic_chiasm.mif $subject/mask_optic_chiasm.nii.gz
+			
+		fi
+
+	done
+
+	echo $i
+
+done
+
+
+# Correct masks in MCIC dataset
+
+for dataset in $input_folder/MCIC; do
+
+	echo $(basename $dataset)
+	i=0
+
+	for subject in $dataset/*; do
+
+		echo $subject
+
+		max=$(mrstats -output min $subject/mask_optic_chiasm.nii.gz -quiet)
+
+		if [ $max == 1 ]; then
+
+			i=$(($i + 1))
+			echo $i
+
+			rm $subject/mask_optic_chiasm.nii.gz
+
+			#cd $subject
+
+			#mrview $subject/t1w_1mm_iso_brain.nii.gz -fullscreen
+
+			#mrconvert $subject/mask_optic_chiasm.mif $subject/mask_optic_chiasm.nii.gz
+			
+		fi
+
+	done
+
+	echo $i
+
+done
+
+END
