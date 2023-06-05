@@ -2,3 +2,5 @@
 *.nii.gz
 *.nii
 *.mif
+*.pkl
+*.txt
